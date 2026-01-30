@@ -1,11 +1,225 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <title>Minikube Demo</title>
+<meta charset="UTF-8">
+<title>minikube-webserver Dokumentation</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+body {
+    scroll-behavior: smooth;
+}
+
+pre {
+    background: #1e1e1e;
+    color: #00ff90;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.section {
+    padding: 60px 0;
+}
+
+.badge-tech {
+    font-size: 0.9rem;
+}
+</style>
 </head>
+
 <body>
-  <h1>Hallo von Kubernetes 👋</h1>
-  <p>Antwort von Container: <strong>{{CONTAINER_ID}}</strong></p>
+
+<nav class="navbar navbar-dark bg-dark navbar-expand-lg fixed-top">
+<div class="container">
+<a class="navbar-brand" href="#">minikube-webserver</a>
+<button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#nav">
+<span class="navbar-toggler-icon"></span>
+</button>
+<div class="collapse navbar-collapse" id="nav">
+<ul class="navbar-nav ms-auto">
+<li class="nav-item"><a class="nav-link" href="#overview">Überblick</a></li>
+<li class="nav-item"><a class="nav-link" href="#tech">Technologie</a></li>
+<li class="nav-item"><a class="nav-link" href="#setup">Setup</a></li>
+<li class="nav-item"><a class="nav-link" href="#deploy">Deployment</a></li>
+<li class="nav-item"><a class="nav-link" href="#security">Sicherheit</a></li>
+<li class="nav-item"><a class="nav-link" href="#troubleshooting">Troubleshooting</a></li>
+</ul>
+</div>
+</div>
+</nav>
+
+<header class="bg-primary text-white text-center section">
+<div class="container">
+<h1 class="display-4">minikube-webserver</h1>
+<p class="lead">Lokale Kubernetes Infrastruktur mit HTTPS, Load Balancer & Failover</p>
+</div>
+</header>
+
+<section id="overview" class="section">
+<div class="container">
+<h2>Projektüberblick</h2>
+
+<div class="row mt-4">
+<div class="col-md-6">
+<div class="card shadow">
+<div class="card-body">
+<h5 class="card-title">Features</h5>
+<ul>
+<li>Dynamischer Webserver</li>
+<li>HTTPS (Self-Signed)</li>
+<li>Load Balancer mit HAProxy</li>
+<li>Healthchecks</li>
+<li>Failover</li>
+<li>Git-basierter Content</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div class="col-md-6">
+<div class="card shadow">
+<div class="card-body">
+<h5 class="card-title">Architektur</h5>
+<pre>
+Browser (HTTPS)
+ ↓
+NodePort Service (30443)
+ ↓
+HAProxy Pod
+ ↓
+Headless Service
+ ↓
+Webserver Pods
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section id="tech" class="bg-light section">
+<div class="container">
+<h2>Technologie Stack</h2>
+
+<table class="table table-bordered table-striped mt-4">
+<thead class="table-dark">
+<tr>
+<th>Technologie</th>
+<th>Begründung</th>
+</tr>
+</thead>
+<tbody>
+<tr><td><span class="badge bg-primary badge-tech">Docker</span></td><td>Standard für Container</td></tr>
+<tr><td><span class="badge bg-success badge-tech">Minikube</span></td><td>Lokales Kubernetes</td></tr>
+<tr><td><span class="badge bg-info badge-tech">NGINX</span></td><td>Webserver</td></tr>
+<tr><td><span class="badge bg-warning text-dark badge-tech">HAProxy</span></td><td>Load Balancer</td></tr>
+<tr><td><span class="badge bg-secondary badge-tech">Git</span></td><td>Dynamischer Content</td></tr>
+<tr><td><span class="badge bg-danger badge-tech">OpenSSL</span></td><td>HTTPS Zertifikate</td></tr>
+<tr><td><span class="badge bg-dark badge-tech">Bash</span></td><td>Automatisierung</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<section id="setup" class="section">
+<div class="container">
+<h2>Setup</h2>
+
+<h4>Voraussetzungen</h4>
+<pre>
+docker --version
+minikube version
+kubectl version --client
+</pre>
+
+<h4>Minikube starten</h4>
+<pre>
+minikube start --driver=docker
+</pre>
+
+<h4>Zertifikat erzeugen</h4>
+<pre>
+openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days 365 -nodes
+cat cert.pem key.pem > fullchain.pem
+</pre>
+
+<h4>Docker Umgebung wechseln</h4>
+<pre>
+eval $(minikube docker-env)
+</pre>
+</div>
+</section>
+
+<section id="deploy" class="bg-light section">
+<div class="container">
+<h2>Deployment</h2>
+
+<h4>Images bauen</h4>
+<pre>
+docker build -t webserver ./app
+docker build -t haproxy-lb ./haproxy
+</pre>
+
+<h4>Kubernetes deployen</h4>
+<pre>
+kubectl apply -f k8s/
+kubectl get pods
+kubectl get svc
+</pre>
+
+<h4>Zugriff</h4>
+<pre>
+https://&lt;MINIKUBE-IP&gt;:30443
+</pre>
+
+<h4>Failover Test</h4>
+<pre>
+kubectl delete pod -l app=web
+</pre>
+</div>
+</section>
+
+<section id="security" class="section">
+<div class="container">
+<h2>Sicherheitsaspekte</h2>
+
+<ul class="list-group mt-3">
+<li class="list-group-item">Minimales Container-Image</li>
+<li class="list-group-item">Healthchecks überwachen Zustand</li>
+<li class="list-group-item">Keine Secrets im Repository</li>
+<li class="list-group-item">TLS Zertifikate lokal</li>
+<li class="list-group-item">Trennung von Webserver & Load Balancer</li>
+</ul>
+</div>
+</section>
+
+<section id="troubleshooting" class="bg-light section">
+<div class="container">
+<h2>Troubleshooting</h2>
+
+<h4>ErrImageNeverPull</h4>
+<pre>
+eval $(minikube docker-env)
+</pre>
+
+<h4>CrashLoopBackOff</h4>
+<pre>
+kubectl logs &lt;pod&gt;
+</pre>
+
+<h4>Cluster Reset</h4>
+<pre>
+minikube delete
+</pre>
+</div>
+</section>
+
+<footer class="bg-dark text-white text-center p-4">
+Autor: Fausto Oliveira
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
