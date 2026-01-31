@@ -1,4 +1,6 @@
-let podTotal = 3;
+// pod management 
+
+let podTotal = 3; 
 
 function drawPods(){
 const g=document.getElementById("pods");
