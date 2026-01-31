@@ -1,0 +1,40 @@
+body {
+    background:#0b1220;
+    color:white;
+    font-family:system-ui;
+}
+
+pre {
+    background:#111827;
+    padding:15px;
+    border-radius:10px;
+    color:#22c55e;
+}
+
+.section { padding:60px 0; }
+
+.card-ui {
+    background:#111827;
+    border-radius:18px;
+    padding:25px;
+    box-shadow:0 20px 40px rgba(0,0,0,0.5);
+}
+
+.node rect { transition:0.3s; }
+.node:hover rect { filter:brightness(1.3); }
+
+.arrow {
+    stroke:#38bdf8;
+    stroke-width:3;
+    fill:none;
+    stroke-dasharray:8;
+    animation:flow 1s linear infinite;
+}
+
+@keyframes flow { to { stroke-dashoffset:-16; } }
+
+.pod { fill:#22c55e; animation:pulse 2s infinite; }
+
+@keyframes pulse {
+0%{opacity:0.4;} 50%{opacity:1;} 100%{opacity:0.4;}
+}
